@@ -63,6 +63,23 @@ bool SerialPort::open()
     return true;
 }
 
+void SerialPort::close()
+{
+#ifdef _WIN32
+    if (hSerial != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(hSerial);
+        hSerial = INVALID_HANDLE_VALUE;
+    }
+#else
+    if (fd >= 0)
+    {
+        ::close(fd);
+        fd = -1;
+    }
+#endif
+}
+
 void SerialPort::write(const std::string &data)
 {
 #ifdef _WIN32
