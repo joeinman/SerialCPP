@@ -1,7 +1,7 @@
 #include "SerialCPP.h"
 #include <iostream>
 
-SerialPort::SerialPort(const std::string &port) : portName(port)
+SerialPort::SerialPort(const std::string &port, unsigned long baud) : portName(port), baudRate(baud)
 {
 #ifdef _WIN32
     hSerial = INVALID_HANDLE_VALUE;
@@ -24,7 +24,20 @@ bool SerialPort::open()
         // handle error
         return false;
     }
-    // configure the port
+
+    DCB dcbSerialParams = {0};
+    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+    if (!GetCommState(hSerial, &dcbSerialParams))
+    {
+        // handle error
+        return false;
+    }
+    dcbSerialParams.BaudRate = baudRate;
+    if (!SetCommState(hSerial, &dcbSerialParams))
+    {
+        // handle error
+        return false;
+    }
 #else
     fd = ::open(portName.c_str(), O_RDWR | O_NOCTTY);
     if (fd < 0)
@@ -32,26 +45,22 @@ bool SerialPort::open()
         // handle error
         return false;
     }
-    // configure the port
+
+    struct termios tty;
+    if (tcgetattr(fd, &tty) != 0)
+    {
+        // handle error
+        return false;
+    }
+    cfsetospeed(&tty, baudRate);
+    cfsetispeed(&tty, baudRate);
+    if (tcsetattr(fd, TCSANOW, &tty) != 0)
+    {
+        // handle error
+        return false;
+    }
 #endif
     return true;
-}
-
-void SerialPort::close()
-{
-#ifdef _WIN32
-    if (hSerial != INVALID_HANDLE_VALUE)
-    {
-        CloseHandle(hSerial);
-        hSerial = INVALID_HANDLE_VALUE;
-    }
-#else
-    if (fd >= 0)
-    {
-        ::close(fd);
-        fd = -1;
-    }
-#endif
 }
 
 void SerialPort::write(const std::string &data)

@@ -13,7 +13,7 @@
 class SerialPort
 {
 public:
-    SerialPort(const std::string &port);
+    SerialPort(const std::string& port, unsigned long baudRate);
     ~SerialPort();
 
     bool open();
@@ -26,6 +26,7 @@ public:
 
 private:
     std::string portName;
+    unsigned long baudRate;
 
 #ifdef _WIN32
     HANDLE hSerial;
