@@ -1,4 +1,4 @@
-#include <SerialCPP/SerialCPP.h>
+#include "SerialCPP/SerialCPP.h"
 #include <iostream>
 #include <thread>
 
@@ -29,12 +29,19 @@ int main()
             }
         }
 
-        // If There Is Data Available To Read From The Serial Port
-        if (serial.available() > 0)
+        try
         {
-            // Read A Line Of Text From The Serial Port & Print It To The Console
-            std::string line = serial.readLine();
-            std::cout << "Received: " << line << '\n';
+            // If There Is Data Available To Read From The Serial Port
+            if (serial.available() > 0)
+            {
+                // Read A Line Of Text From The Serial Port & Print It To The Console
+                std::string line = serial.readLine();
+                std::cout << "Received: " << line << '\n';
+            }
+        }
+        catch (const std::runtime_error &e)
+        {
+            std::cerr << "An error occurred: " << e.what() << '\n';
         }
     }
 

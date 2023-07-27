@@ -32,11 +32,19 @@ int main()
     serial.writeLine("Hello World.");
 
     // Read A Line Of Text From The Serial Port
-    std::string line = serial.readLine();
-    std::cout << "Received: " << line << '\n';
+    try
+    {
+        std::string line = serial.readLine();
+        std::cout << "Received: " << line << '\n';
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cerr << "An error occurred: " << e.what() << '\n';
+    }
 
     // Close The Serial Port
     serial.close();
     return 0;
 }
+
 ```

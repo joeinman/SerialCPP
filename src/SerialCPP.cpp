@@ -1,6 +1,6 @@
 #include "SerialCPP/SerialCPP.h"
 
-SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeout = 1000)
+SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeout)
     : portName(port), baudRate(baud), timeout(std::chrono::milliseconds(timeout))
 {
 #ifdef _WIN32
@@ -132,6 +132,7 @@ uint8_t SerialCPP::read()
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
+    throw std::runtime_error("Read Operation Timed Out");
 }
 
 void SerialCPP::fillBuffer()
