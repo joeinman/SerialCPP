@@ -83,12 +83,25 @@ void SerialCPP::close()
 
 void SerialCPP::write(const uint8_t *data, size_t size)
 {
+    // Add the data to the output buffer
+    for (size_t i = 0; i < size; ++i)
+    {
+        outputBuffer.push_back(data[i]);
+    }
+
+    // Send all the data in the output buffer
+    while (!outputBuffer.empty())
+    {
+        uint8_t c = outputBuffer.front();
+        outputBuffer.pop_front();
+
 #ifdef _WIN32
-    DWORD bytesWritten;
-    WriteFile(hSerial, data, size, &bytesWritten, NULL);
+        DWORD bytesWritten;
+        WriteFile(hSerial, &c, 1, &bytesWritten, NULL);
 #else
-    ::write(fd, data, size);
+        ::write(fd, &c, 1);
 #endif
+    }
 }
 
 void SerialCPP::writeLine(const std::string &data)
@@ -105,25 +118,37 @@ void SerialCPP::writeLine(const std::string &data)
 
 uint8_t SerialCPP::read()
 {
-    uint8_t c;
-#ifdef _WIN32
-    DWORD bytesRead;
-    ReadFile(hSerial, &c, 1, &bytesRead, NULL);
-#else
-    ::read(fd, &c, 1);
-#endif
+    if (inputBuffer.empty())
+        fillBuffer();
+
+    uint8_t c = inputBuffer.front();
+    inputBuffer.pop_front();
     return c;
+}
+
+void SerialCPP::fillBuffer()
+{
+    uint8_t tempBuffer[64];
+    size_t bytesRead;
+#ifdef _WIN32
+    ReadFile(hSerial, tempBuffer, sizeof(tempBuffer), reinterpret_cast<DWORD *>(&bytesRead), NULL);
+#else
+    bytesRead = ::read(fd, tempBuffer, sizeof(tempBuffer));
+#endif
+    for (size_t i = 0; i < bytesRead; ++i)
+    {
+        inputBuffer.push_back(tempBuffer[i]);
+    }
 }
 
 size_t SerialCPP::readBytes(uint8_t *buffer, size_t n)
 {
-#ifdef _WIN32
-    DWORD bytesRead;
-    ReadFile(hSerial, buffer, n, &bytesRead, NULL);
-#else
-    ssize_t bytesRead = ::read(fd, buffer, n);
-#endif
-    return bytesRead;
+    size_t i;
+    for (i = 0; i < n && !this->inputBuffer.empty(); ++i)
+    {
+        buffer[i] = read();
+    }
+    return i;
 }
 
 std::string SerialCPP::readLine()
@@ -135,4 +160,10 @@ std::string SerialCPP::readLine()
         line += static_cast<char>(c);
     }
     return line;
+}
+
+size_t SerialCPP::available()
+{
+    fillBuffer();
+    return inputBuffer.size();
 }

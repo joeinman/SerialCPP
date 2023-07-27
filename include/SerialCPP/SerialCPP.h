@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <deque>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -51,9 +52,28 @@ public:
     // @return: The line of text read from the port.
     std::string readLine();
 
+    // Returns the number of bytes available to read in the buffer.
+    // @return: The number of bytes available to read.
+    size_t available();
+
+    // Returns True if the serial port is open, False otherwise.
+    // @return: True if the serial port is open, False otherwise.
+    operator bool() const
+    {
+#ifdef _WIN32
+        return hSerial != INVALID_HANDLE_VALUE;
+#else
+        return fd >= 0;
+#endif
+    }
+
 private:
-    std::string portName;   // The name of the serial port.
-    unsigned long baudRate; // The baud rate at which the communications device operates.
+    void fillBuffer();
+
+    std::string portName;             // The name of the serial port.
+    unsigned long baudRate;           // The baud rate at which the communications device operates.
+    std::deque<uint8_t> inputBuffer;  // The buffer for incoming data.
+    std::deque<uint8_t> outputBuffer; // The output buffer for outgoing data.
 
 #ifdef _WIN32
     HANDLE hSerial; // The handle to the serial port (Windows only).
