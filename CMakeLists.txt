@@ -10,5 +10,5 @@ target_sources(SerialCPP PRIVATE
 )
 
 target_include_directories(SerialCPP PUBLIC
-    "include/SerialCPP"
+    "include"
 )
