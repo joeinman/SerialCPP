@@ -13,24 +13,47 @@
 class SerialCPP
 {
 public:
-    SerialCPP(const std::string& port, unsigned long baudRate);
+    // Constructor: Initializes a new instance of the SerialCPP class.
+    // @param port: The name of the serial port to connect to.
+    // @param baudRate: The baud rate at which the communications device operates.
+    SerialCPP(const std::string &port, unsigned long baudRate);
+
+    // Destructor: Closes the serial port if it is open.
     ~SerialCPP();
 
+    // Opens the serial port for communication.
+    // @return: true if the port was opened successfully, false otherwise.
     bool open();
+
+    // Closes the serial port.
     void close();
 
-    void write(const std::string &data);
+    // Writes data to the serial port.
+    // @param data: The data to write to the port.
+    // @param size: The number of bytes to write.
+    void write(const uint8_t *data, size_t size);
+
+    // Writes a string to the serial port, followed by a newline character.
+    // @param data: The string to write to the port.
     void writeLine(const std::string &data);
-    std::string read(size_t n = 1);
+
+    // Reads data from the serial port.
+    // @param buffer: The buffer to store the read data.
+    // @param n: The maximum number of bytes to read.
+    // @return: The actual number of bytes read.
+    size_t read(uint8_t *buffer, size_t n);
+
+    // Reads a line of text from the serial port.
+    // @return: The line of text read from the port.
     std::string readLine();
 
 private:
-    std::string portName;
-    unsigned long baudRate;
+    std::string portName;   // The name of the serial port.
+    unsigned long baudRate; // The baud rate at which the communications device operates.
 
 #ifdef _WIN32
-    HANDLE hSerial;
+    HANDLE hSerial; // The handle to the serial port (Windows only).
 #else
-    int fd;
+    int fd; // The file descriptor for the serial port (non-Windows only).
 #endif
 };

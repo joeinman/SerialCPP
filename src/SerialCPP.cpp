@@ -1,5 +1,6 @@
 #include "SerialCPP.h"
 #include <iostream>
+#include <vector>
 
 SerialCPP::SerialCPP(const std::string &port, unsigned long baud) : portName(port), baudRate(baud)
 {
@@ -80,40 +81,53 @@ void SerialCPP::close()
 #endif
 }
 
-void SerialCPP::write(const std::string &data)
+void SerialCPP::write(const uint8_t *data, size_t size)
 {
 #ifdef _WIN32
     DWORD bytesWritten;
-    WriteFile(hSerial, data.c_str(), data.size(), &bytesWritten, NULL);
+    WriteFile(hSerial, data, size, &bytesWritten, NULL);
 #else
-    ::write(fd, data.c_str(), data.size());
+    ::write(fd, data, size);
 #endif
 }
 
 void SerialCPP::writeLine(const std::string &data)
 {
-    write(data + "\n");
+    // Convert string to a byte array
+    std::vector<uint8_t> byteData(data.begin(), data.end());
+
+    // Append newline character
+    byteData.push_back('\n');
+
+    // Write the byte array
+    write(byteData.data(), byteData.size());
 }
 
-std::string SerialCPP::read(size_t n)
+size_t SerialCPP::read(uint8_t *buffer, size_t n)
 {
-    char buffer[1024];
 #ifdef _WIN32
     DWORD bytesRead;
     ReadFile(hSerial, buffer, n, &bytesRead, NULL);
 #else
     ssize_t bytesRead = ::read(fd, buffer, n);
 #endif
-    return std::string(buffer, bytesRead);
+    return bytesRead;
 }
 
 std::string SerialCPP::readLine()
 {
     std::string line;
-    char c;
-    while ((c = read(1)[0]) != '\n')
+    uint8_t c;
+    while (true)
     {
-        line += c;
+        if (read(&c, 1) == 1 && c != '\n')
+        {
+            line += static_cast<char>(c);
+        }
+        else
+        {
+            break;
+        }
     }
     return line;
 }
