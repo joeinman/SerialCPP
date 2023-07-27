@@ -1,7 +1,11 @@
 #pragma once
 
+#include <iostream>
+#include <vector>
 #include <string>
+#include <chrono>
 #include <deque>
+#include <thread>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -17,7 +21,7 @@ public:
     // Constructor: Initializes a new instance of the SerialCPP class.
     // @param port: The name of the serial port to connect to.
     // @param baudRate: The baud rate at which the communications device operates.
-    SerialCPP(const std::string &port, unsigned long baudRate);
+    SerialCPP::SerialCPP(const std::string &port, size_t baud = 115200, size_t timeout = 1000);
 
     // Destructor: Closes the serial port if it is open.
     ~SerialCPP();
@@ -56,6 +60,10 @@ public:
     // @return: The number of bytes available to read.
     size_t available();
 
+    // Sets the timeout for read operations.
+    // @param timeout: The timeout in milliseconds.
+    void setTimeout(size_t timeout);
+
     // Returns True if the serial port is open, False otherwise.
     // @return: True if the serial port is open, False otherwise.
     operator bool() const
@@ -70,10 +78,11 @@ public:
 private:
     void fillBuffer();
 
-    std::string portName;             // The name of the serial port.
-    unsigned long baudRate;           // The baud rate at which the communications device operates.
-    std::deque<uint8_t> inputBuffer;  // The buffer for incoming data.
-    std::deque<uint8_t> outputBuffer; // The output buffer for outgoing data.
+    std::string portName;              // The name of the serial port.
+    size_t baudRate;                   // The baud rate at which the communications device operates.
+    std::deque<uint8_t> inputBuffer;   // The buffer for incoming data.
+    std::deque<uint8_t> outputBuffer;  // The output buffer for outgoing data.
+    std::chrono::milliseconds timeout; // The timeout for read operations.
 
 #ifdef _WIN32
     HANDLE hSerial; // The handle to the serial port (Windows only).

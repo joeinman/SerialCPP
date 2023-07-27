@@ -1,8 +1,7 @@
 #include "SerialCPP/SerialCPP.h"
-#include <iostream>
-#include <vector>
 
-SerialCPP::SerialCPP(const std::string &port, unsigned long baud) : portName(port), baudRate(baud)
+SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeout = 1000)
+    : portName(port), baudRate(baud), timeout(std::chrono::milliseconds(timeout))
 {
 #ifdef _WIN32
     hSerial = INVALID_HANDLE_VALUE;
@@ -118,12 +117,21 @@ void SerialCPP::writeLine(const std::string &data)
 
 uint8_t SerialCPP::read()
 {
-    if (inputBuffer.empty())
-        fillBuffer();
-
-    uint8_t c = inputBuffer.front();
-    inputBuffer.pop_front();
-    return c;
+    auto start = std::chrono::steady_clock::now();
+    while (std::chrono::steady_clock::now() - start < timeout)
+    {
+        if (!inputBuffer.empty())
+        {
+            uint8_t c = inputBuffer.front();
+            inputBuffer.pop_front();
+            return c;
+        }
+        else
+        {
+            fillBuffer();
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
+    }
 }
 
 void SerialCPP::fillBuffer()
@@ -166,4 +174,9 @@ size_t SerialCPP::available()
 {
     fillBuffer();
     return inputBuffer.size();
+}
+
+void SerialCPP::setTimeout(size_t timeout)
+{
+    this->timeout = std::chrono::milliseconds(timeout);
 }
