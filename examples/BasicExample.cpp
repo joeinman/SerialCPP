@@ -1,18 +1,3 @@
-# SerialCPP
-
-![CMake](https://github.com/joeinman/SerialCPP/actions/workflows/cmake.yml/badge.svg)
-
-SerialCPP is a Cross Platform C++ Library for Serial Communication. It provides a Simple and Consistent API for Reading from and Writing to Serial Ports on both Windows and Unix-like Systems (such as Linux or MacOS).
-
-## Features:
-
-- Open & Close Serial Ports
-- Read and Write Data to Serial Ports
-- Read & Write a Line of Text to and From a Serial Port
-
-## Basic Example:
-
-```cpp
 #include <SerialCPP/SerialCPP.h>
 #include <iostream>
 
@@ -39,4 +24,3 @@ int main()
     serial.close();
     return 0;
 }
-```
