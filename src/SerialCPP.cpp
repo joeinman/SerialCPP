@@ -1,7 +1,7 @@
 #include "SerialCPP.h"
 #include <iostream>
 
-SerialPort::SerialPort(const std::string &port, unsigned long baud) : portName(port), baudRate(baud)
+SerialCPP::SerialCPP(const std::string &port, unsigned long baud) : portName(port), baudRate(baud)
 {
 #ifdef _WIN32
     hSerial = INVALID_HANDLE_VALUE;
@@ -10,12 +10,12 @@ SerialPort::SerialPort(const std::string &port, unsigned long baud) : portName(p
 #endif
 }
 
-SerialPort::~SerialPort()
+SerialCPP::~SerialCPP()
 {
     close();
 }
 
-bool SerialPort::open()
+bool SerialCPP::open()
 {
 #ifdef _WIN32
     hSerial = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -63,7 +63,7 @@ bool SerialPort::open()
     return true;
 }
 
-void SerialPort::close()
+void SerialCPP::close()
 {
 #ifdef _WIN32
     if (hSerial != INVALID_HANDLE_VALUE)
@@ -80,7 +80,7 @@ void SerialPort::close()
 #endif
 }
 
-void SerialPort::write(const std::string &data)
+void SerialCPP::write(const std::string &data)
 {
 #ifdef _WIN32
     DWORD bytesWritten;
@@ -90,12 +90,12 @@ void SerialPort::write(const std::string &data)
 #endif
 }
 
-void SerialPort::writeLine(const std::string &data)
+void SerialCPP::writeLine(const std::string &data)
 {
     write(data + "\n");
 }
 
-std::string SerialPort::read(size_t n)
+std::string SerialCPP::read(size_t n)
 {
     char buffer[1024];
 #ifdef _WIN32
@@ -107,7 +107,7 @@ std::string SerialPort::read(size_t n)
     return std::string(buffer, bytesRead);
 }
 
-std::string SerialPort::readLine()
+std::string SerialCPP::readLine()
 {
     std::string line;
     char c;

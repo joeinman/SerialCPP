@@ -10,11 +10,11 @@
 #include <fcntl.h>
 #endif
 
-class SerialPort
+class SerialCPP
 {
 public:
-    SerialPort(const std::string& port, unsigned long baudRate);
-    ~SerialPort();
+    SerialCPP(const std::string& port, unsigned long baudRate);
+    ~SerialCPP();
 
     bool open();
     void close();
