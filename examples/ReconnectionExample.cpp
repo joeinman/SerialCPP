@@ -9,43 +9,23 @@ int main()
 
     while (1)
     {
-        // If The Serial Port Is Not Open
+        // If The Serial Port Is Not Open, Attempt To Reopen It
         if (!serial)
         {
-            // Print A Message Indicating That The Serial Port Is Disconnected
-            std::cerr << "Serial Port Disconnected, Attempting To Reconnect...\n";
-
             // Attempt To Reopen The Serial Port
-            if (serial.open())
-            {
-                // If The Serial Port Is Successfully Opened, Print A Success Message
-                std::cout << "Connected Successfully.\n";
-            }
-            else
-            {
-                // If The Serial Port Could Not Be Opened, Wait For 1 Second Before Retrying
-                std::this_thread::sleep_for(std::chrono::seconds(1));
-                continue;
-            }
+            serial.open();
+            std::cout << "Connected Successfully.\n";
         }
 
-        try
+        // If There Is Data Available To Read From The Serial Port
+        if (serial.available() > 0)
         {
-            // If There Is Data Available To Read From The Serial Port
-            if (serial.available() > 0)
-            {
-                // Read A Line Of Text From The Serial Port & Print It To The Console
-                std::string line = serial.readLine();
-                std::cout << "Received: " << line << '\n';
-            }
-        }
-        catch (const std::runtime_error &e)
-        {
-            std::cerr << "An error occurred: " << e.what() << '\n';
+            // Read A Line Of Text From The Serial Port & Print It To The Console
+            std::string line = serial.readLine();
+            std::cout << "Received: " << line << '\n';
         }
     }
 
-    // Close The Serial Port
-    serial.close();
+    // Note: The code will never reach this point, so the "serial.close()" is not necessary.
     return 0;
 }

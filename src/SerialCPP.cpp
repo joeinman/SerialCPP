@@ -1,7 +1,7 @@
 #include "SerialCPP/SerialCPP.h"
 
-SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeout)
-    : portName(port), baudRate(baud), timeout(std::chrono::milliseconds(timeout))
+SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeouT, size_t bufferSize)
+    : portName(port), baudRate(baud), timeout(std::chrono::milliseconds(timeout)), bufferSize(bufferSize)
 {
 #ifdef _WIN32
     hSerial = INVALID_HANDLE_VALUE;
@@ -82,17 +82,9 @@ void SerialCPP::close()
 
 void SerialCPP::write(const uint8_t *data, size_t size)
 {
-    // Add the data to the output buffer
     for (size_t i = 0; i < size; ++i)
     {
-        outputBuffer.push_back(data[i]);
-    }
-
-    // Send all the data in the output buffer
-    while (!outputBuffer.empty())
-    {
-        uint8_t c = outputBuffer.front();
-        outputBuffer.pop_front();
+        uint8_t c = data[i];
 
 #ifdef _WIN32
         DWORD bytesWritten;
@@ -115,11 +107,11 @@ void SerialCPP::writeLine(const std::string &data)
     // Append newline character
     byteData.push_back('\n');
 
-    // Write the byte array
+    // Write the byte array using the write method
     write(byteData.data(), byteData.size());
 }
 
-uint8_t SerialCPP::read()
+int SerialCPP::read()
 {
     auto start = std::chrono::steady_clock::now();
     while (std::chrono::steady_clock::now() - start < timeout)
@@ -136,7 +128,7 @@ uint8_t SerialCPP::read()
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
     }
-    throw std::runtime_error("Read Operation Timed Out");
+    return -1; // Return -1 on timeout
 }
 
 void SerialCPP::fillBuffer()
