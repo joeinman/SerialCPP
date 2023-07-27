@@ -37,11 +37,15 @@ public:
     // @param data: The string to write to the port.
     void writeLine(const std::string &data);
 
+    // Reads a byte from the serial port.
+    // @return: The byte read.
+    uint8_t read();
+
     // Reads data from the serial port.
     // @param buffer: The buffer to store the read data.
     // @param n: The maximum number of bytes to read.
     // @return: The actual number of bytes read.
-    size_t read(uint8_t *buffer, size_t n);
+    size_t readBytes(uint8_t *buffer, size_t n);
 
     // Reads a line of text from the serial port.
     // @return: The line of text read from the port.

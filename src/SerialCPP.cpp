@@ -103,7 +103,19 @@ void SerialCPP::writeLine(const std::string &data)
     write(byteData.data(), byteData.size());
 }
 
-size_t SerialCPP::read(uint8_t *buffer, size_t n)
+uint8_t SerialCPP::read()
+{
+    uint8_t c;
+#ifdef _WIN32
+    DWORD bytesRead;
+    ReadFile(hSerial, &c, 1, &bytesRead, NULL);
+#else
+    ::read(fd, &c, 1);
+#endif
+    return c;
+}
+
+size_t SerialCPP::readBytes(uint8_t *buffer, size_t n)
 {
 #ifdef _WIN32
     DWORD bytesRead;
@@ -118,16 +130,9 @@ std::string SerialCPP::readLine()
 {
     std::string line;
     uint8_t c;
-    while (true)
+    while ((c = read()) != '\n')
     {
-        if (read(&c, 1) == 1 && c != '\n')
-        {
-            line += static_cast<char>(c);
-        }
-        else
-        {
-            break;
-        }
+        line += static_cast<char>(c);
     }
     return line;
 }
