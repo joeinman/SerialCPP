@@ -98,7 +98,11 @@ void SerialCPP::write(const uint8_t *data, size_t size)
         DWORD bytesWritten;
         WriteFile(hSerial, &c, 1, &bytesWritten, NULL);
 #else
-        ::write(fd, &c, 1);
+        ssize_t result = ::write(fd, &c, 1);
+        if (result == -1)
+        {
+            // TODO: Handle Error
+        }
 #endif
     }
 }

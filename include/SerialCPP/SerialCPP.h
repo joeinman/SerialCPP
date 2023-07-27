@@ -21,7 +21,7 @@ public:
     // Constructor: Initializes a new instance of the SerialCPP class.
     // @param port: The name of the serial port to connect to.
     // @param baudRate: The baud rate at which the communications device operates.
-    SerialCPP::SerialCPP(const std::string &port, size_t baud = 115200, size_t timeout = 1000);
+    SerialCPP(const std::string &port, size_t baud = 115200, size_t timeout = 1000);
 
     // Destructor: Closes the serial port if it is open.
     ~SerialCPP();
