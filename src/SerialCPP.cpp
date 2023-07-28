@@ -133,12 +133,12 @@ int SerialCPP::read()
 
 void SerialCPP::fillBuffer()
 {
-    uint8_t tempBuffer[64];
+    std::vector<uint8_t> tempBuffer(bufferSize);
     size_t bytesRead;
 #ifdef _WIN32
-    ReadFile(hSerial, tempBuffer, sizeof(tempBuffer), reinterpret_cast<DWORD *>(&bytesRead), NULL);
+    ReadFile(hSerial, tempBuffer.data(), tempBuffer.size(), reinterpret_cast<DWORD *>(&bytesRead), NULL);
 #else
-    bytesRead = ::read(fd, tempBuffer, sizeof(tempBuffer));
+    bytesRead = ::read(fd, tempBuffer.data(), tempBuffer.size());
 #endif
     for (size_t i = 0; i < bytesRead; ++i)
     {
