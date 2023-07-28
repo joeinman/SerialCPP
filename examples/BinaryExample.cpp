@@ -8,7 +8,11 @@ int main()
     SerialCPP serial("COM3", 115200);
 
     // Open The Serial Port
-    serial.open();
+    if (!serial.open())
+    {
+        std::cerr << "Failed To Open Serial Port.\n";
+        return 1;
+    }
 
     // Create A Vector Of Bytes To Send
     std::vector<uint8_t> data = {0x01, 0x02, 0x03, 0x04};
