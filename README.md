@@ -2,7 +2,7 @@
 
 ![CMake](https://github.com/joeinman/SerialCPP/actions/workflows/cmake.yml/badge.svg)
 
-SerialCPP is a cross-platform C++ library for serial communication. Based on [PySerial](https://pyserial.readthedocs.io/en/latest/pyserial.html) and [Arduino Serial](https://www.arduino.cc/reference/en/#serial), it provides a simple and consistent API for reading from and writing to serial ports on both Windows and Unix-like systems (such as Linux or macOS).
+SerialCPP is a cross-platform C++ library for serial communication. Based on [PySerial](https://pyserial.readthedocs.io/en/latest/pyserial.html) and [Arduino Serial](https://www.arduino.cc/reference/en/#serial), it provides a simple and consistent API for use on both Windows and Unix-like systems (such as Linux or macOS).
 
 ## Features:
 
