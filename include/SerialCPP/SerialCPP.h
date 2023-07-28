@@ -45,7 +45,7 @@ public:
 
     // Reads a byte from the serial port.
     // @return: The byte read.
-    std::optional<uint8_t> SerialCPP::read();
+    std::optional<uint8_t> read();
 
     // Reads data from the serial port.
     // @param buffer: The buffer to store the read data.
