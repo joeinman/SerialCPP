@@ -1,11 +1,10 @@
 #pragma once
 
+#include <optional>
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <chrono>
 #include <deque>
-#include <thread>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -46,7 +45,7 @@ public:
 
     // Reads a byte from the serial port.
     // @return: The byte read.
-    int read();
+    std::optional<uint8_t> SerialCPP::read();
 
     // Reads data from the serial port.
     // @param buffer: The buffer to store the read data.
@@ -62,10 +61,6 @@ public:
     // @return: The number of bytes available to read.
     size_t available();
 
-    // Sets the timeout for read operations.
-    // @param timeout: The timeout in milliseconds.
-    void setTimeout(size_t timeout);
-
     // Returns True if the serial port is open, False otherwise.
     // @return: True if the serial port is open, False otherwise.
     operator bool() const
@@ -80,11 +75,10 @@ public:
 private:
     void fillBuffer();
 
-    std::string portName;              // The name of the serial port.
-    size_t baudRate;                   // The baud rate at which the communications device operates.
-    std::deque<uint8_t> inputBuffer;   // The buffer for incoming data.
-    size_t bufferSize;                 // The size of the buffer for read operations
-    std::chrono::milliseconds timeout; // The timeout for read operations.
+    std::string portName;            // The name of the serial port.
+    size_t baudRate;                 // The baud rate at which the communications device operates.
+    std::deque<uint8_t> inputBuffer; // The buffer for incoming data.
+    size_t bufferSize;               // The size of the buffer for read operations
 
 #ifdef _WIN32
     HANDLE hSerial; // The handle to the serial port (Windows only).

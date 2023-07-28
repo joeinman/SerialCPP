@@ -1,7 +1,7 @@
 #include "SerialCPP/SerialCPP.h"
 
 SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeouT, size_t bufferSize)
-    : portName(port), baudRate(baud), timeout(std::chrono::milliseconds(timeout)), bufferSize(bufferSize)
+    : portName(port), baudRate(baud), bufferSize(bufferSize)
 {
 #ifdef _WIN32
     hSerial = INVALID_HANDLE_VALUE;
@@ -111,24 +111,21 @@ void SerialCPP::writeLine(const std::string &data)
     write(byteData.data(), byteData.size());
 }
 
-int SerialCPP::read()
+std::optional<uint8_t> SerialCPP::read()
 {
-    auto start = std::chrono::steady_clock::now();
-    while (std::chrono::steady_clock::now() - start < timeout)
+    if (inputBuffer.empty())
     {
-        if (!inputBuffer.empty())
-        {
-            uint8_t c = inputBuffer.front();
-            inputBuffer.pop_front();
-            return c;
-        }
-        else
-        {
-            fillBuffer();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
+        fillBuffer();
     }
-    return -1; // Return -1 on timeout
+
+    if (!inputBuffer.empty())
+    {
+        uint8_t c = inputBuffer.front();
+        inputBuffer.pop_front();
+        return c;
+    }
+
+    return std::nullopt;
 }
 
 void SerialCPP::fillBuffer()
@@ -146,34 +143,30 @@ void SerialCPP::fillBuffer()
     }
 }
 
-size_t SerialCPP::readBytes(uint8_t *buffer, size_t n)
-{
-    size_t i;
-    for (i = 0; i < n && !this->inputBuffer.empty(); ++i)
-    {
-        buffer[i] = read();
-    }
-    return i;
-}
-
 std::string SerialCPP::readLine()
 {
     std::string line;
-    uint8_t c;
-    while ((c = read()) != '\n')
+    std::optional<uint8_t> opt;
+    while ((opt = read()) && opt.value() != '\n')
     {
-        line += static_cast<char>(c);
+        line += static_cast<char>(opt.value());
     }
     return line;
+}
+
+size_t SerialCPP::readBytes(uint8_t *buffer, size_t n)
+{
+    size_t i;
+    std::optional<uint8_t> opt;
+    for (i = 0; i < n && (opt = read()); ++i)
+    {
+        buffer[i] = opt.value();
+    }
+    return i;
 }
 
 size_t SerialCPP::available()
 {
     fillBuffer();
     return inputBuffer.size();
-}
-
-void SerialCPP::setTimeout(size_t timeout)
-{
-    this->timeout = std::chrono::milliseconds(timeout);
 }
