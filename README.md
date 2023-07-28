@@ -15,27 +15,28 @@ SerialCPP is a cross-platform C++ library for serial communication. Based on [Py
 ```cpp
 #include <SerialCPP/SerialCPP.h>
 #include <iostream>
+#include <string>
 
 int main()
 {
-    // Create a SerialCPP object using the COM3 port with a 115200 baud rate
+    // Create A SerialCPP Object Using The COM3 Port With A 115200 Baudrate
     SerialCPP serial("COM3", 115200);
 
-    // Open the serial port
+    // Open The Serial Port
     if (!serial.open())
     {
-        std::cerr << "Failed to open serial port.\n";
+        std::cerr << "Failed To Open Serial Port.\n";
         return 1;
     }
 
-    // Write a line of text to the serial port
+    // Write A Line Of Text To The Serial Port
     serial.writeLine("Hello World.");
 
-    // Read a line of text from the serial port
+    // Read A Line Of Text From The Serial Port
     std::string line = serial.readLine();
     std::cout << "Received: " << line << '\n';
 
-    // Close the serial port
+    // Close The Serial Port
     serial.close();
     return 0;
 }

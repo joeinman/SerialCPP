@@ -1,6 +1,7 @@
 #include <SerialCPP/SerialCPP.h>
 #include <iostream>
 #include <thread>
+#include <string>
 
 int main()
 {

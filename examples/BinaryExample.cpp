@@ -1,5 +1,6 @@
 #include <SerialCPP/SerialCPP.h>
 #include <iostream>
+#include <cstdint>
 #include <vector>
 
 int main()
