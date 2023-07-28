@@ -1,6 +1,6 @@
 #include "SerialCPP/SerialCPP.h"
 
-SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t timeouT, size_t bufferSize)
+SerialCPP::SerialCPP(const std::string &port, size_t baud, size_t bufferSize)
     : portName(port), baudRate(baud), bufferSize(bufferSize)
 {
 #ifdef _WIN32
@@ -63,24 +63,35 @@ bool SerialCPP::open()
     return true;
 }
 
-void SerialCPP::close()
+bool SerialCPP::close()
 {
 #ifdef _WIN32
     if (hSerial != INVALID_HANDLE_VALUE)
     {
-        CloseHandle(hSerial);
+        if (!CloseHandle(hSerial))
+        {
+            // CloseHandle failed
+            return false;
+        }
         hSerial = INVALID_HANDLE_VALUE;
     }
 #else
     if (fd >= 0)
     {
-        ::close(fd);
+        if (::close(fd) == -1)
+        {
+            // close failed
+            return false;
+        }
         fd = -1;
     }
 #endif
+
+    // Close operation succeeded
+    return true;
 }
 
-void SerialCPP::write(const uint8_t *data, size_t size)
+bool SerialCPP::write(const uint8_t *data, size_t size)
 {
     for (size_t i = 0; i < size; ++i)
     {
@@ -88,18 +99,26 @@ void SerialCPP::write(const uint8_t *data, size_t size)
 
 #ifdef _WIN32
         DWORD bytesWritten;
-        WriteFile(hSerial, &c, 1, &bytesWritten, NULL);
+        if (!WriteFile(hSerial, &c, 1, &bytesWritten, NULL))
+        {
+            // WriteFile failed
+            return false;
+        }
 #else
         ssize_t result = ::write(fd, &c, 1);
         if (result == -1)
         {
-            // TODO: Handle Error
+            // write failed
+            return false;
         }
 #endif
     }
+
+    // All writes succeeded
+    return true;
 }
 
-void SerialCPP::writeLine(const std::string &data)
+bool SerialCPP::writeLine(const std::string &data)
 {
     // Convert string to a byte array
     std::vector<uint8_t> byteData(data.begin(), data.end());
@@ -108,7 +127,34 @@ void SerialCPP::writeLine(const std::string &data)
     byteData.push_back('\n');
 
     // Write the byte array using the write method
-    write(byteData.data(), byteData.size());
+    return write(byteData.data(), byteData.size());
+}
+
+bool SerialCPP::fillBuffer()
+{
+    std::vector<uint8_t> tempBuffer(bufferSize);
+    size_t bytesRead;
+#ifdef _WIN32
+    if (!ReadFile(hSerial, tempBuffer.data(), tempBuffer.size(), reinterpret_cast<DWORD *>(&bytesRead), NULL))
+    {
+        // ReadFile failed
+        return false;
+    }
+#else
+    bytesRead = ::read(fd, tempBuffer.data(), tempBuffer.size());
+    if (bytesRead == -1)
+    {
+        // read failed
+        return false;
+    }
+#endif
+    for (size_t i = 0; i < bytesRead; ++i)
+    {
+        inputBuffer.push_back(tempBuffer[i]);
+    }
+
+    // Read operation succeeded
+    return true;
 }
 
 std::optional<uint8_t> SerialCPP::read()
@@ -126,21 +172,6 @@ std::optional<uint8_t> SerialCPP::read()
     }
 
     return std::nullopt;
-}
-
-void SerialCPP::fillBuffer()
-{
-    std::vector<uint8_t> tempBuffer(bufferSize);
-    size_t bytesRead;
-#ifdef _WIN32
-    ReadFile(hSerial, tempBuffer.data(), tempBuffer.size(), reinterpret_cast<DWORD *>(&bytesRead), NULL);
-#else
-    bytesRead = ::read(fd, tempBuffer.data(), tempBuffer.size());
-#endif
-    for (size_t i = 0; i < bytesRead; ++i)
-    {
-        inputBuffer.push_back(tempBuffer[i]);
-    }
 }
 
 std::string SerialCPP::readLine()

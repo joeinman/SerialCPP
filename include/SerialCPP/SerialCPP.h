@@ -20,9 +20,8 @@ public:
     // Constructor: Initializes a new instance of the SerialCPP class.
     // @param port: The name of the serial port to connect to.
     // @param baudRate: The baud rate at which the communications device operates.
-    // @param timeout: The timeout for read operations.
     // @param bufferSize: The size of the internal buffer.
-    SerialCPP(const std::string &port, size_t baud = 115200, size_t timeout = 1000, size_t bufferSize = 64);
+    SerialCPP(const std::string &port, size_t baud = 115200, size_t bufferSize = 64);
 
     // Destructor: Closes the serial port if it is open.
     ~SerialCPP();
@@ -32,16 +31,16 @@ public:
     bool open();
 
     // Closes the serial port.
-    void close();
+    bool close();
 
     // Writes data to the serial port.
     // @param data: The data to write to the port.
     // @param size: The number of bytes to write.
-    void write(const uint8_t *data, size_t size);
+    bool write(const uint8_t *data, size_t size);
 
     // Writes a string to the serial port, followed by a newline character.
     // @param data: The string to write to the port.
-    void writeLine(const std::string &data);
+    bool writeLine(const std::string &data);
 
     // Reads a byte from the serial port.
     // @return: The byte read.
@@ -73,7 +72,7 @@ public:
     }
 
 private:
-    void fillBuffer();
+    bool fillBuffer();
 
     std::string portName;            // The name of the serial port.
     size_t baudRate;                 // The baud rate at which the communications device operates.
