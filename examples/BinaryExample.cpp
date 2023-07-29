@@ -29,7 +29,7 @@ int main()
     std::cout << "Received: ";
     for (const auto &byte : receivedData)
     {
-        std::cout << std::hex << std::setw(2) << std::setfill('0') << byte << " ";
+        std::cout << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(byte) << " ";
     }
     std::cout << std::endl;
 
