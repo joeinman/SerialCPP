@@ -5,8 +5,8 @@
 
 int main()
 {
-    // Create A SerialCPP Object Using The COM3 Port With A 115200 Baudrate
-    SerialCPP serial("COM3", 115200);
+    // Create A SerialCPP Object Using The COM3 Port With A 115200 Baud Rate
+    SerialCPP::SerialCPP serial("COM3", SerialCPP::BaudRate::BR_115200);
 
     // Open The Serial Port
     if (!serial.open())
