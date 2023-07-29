@@ -1,5 +1,6 @@
 #include <SerialCPP/SerialCPP.h>
 #include <iostream>
+#include <iomanip>
 #include <cstdint>
 #include <vector>
 
@@ -11,7 +12,7 @@ int main()
     // Open The Serial Port
     if (!serial.open())
     {
-        std::cerr << "Failed To Open Serial Port.\n";
+        std::cerr << "Failed To Open Serial Port." << std::endl;
         return 1;
     }
 
@@ -21,19 +22,16 @@ int main()
     // Write The Bytes To The Serial Port
     serial.write(data.data(), data.size());
 
-    // Create A Buffer To Store The Received Bytes
-    uint8_t buffer[4];
-
     // Read 4 Bytes From The Serial Port
-    serial.readBytes(buffer, 4);
+    std::vector<uint8_t> receivedData = serial.readBytes(4);
 
     // Print The Received Bytes
     std::cout << "Received: ";
-    for (int i = 0; i < 4; ++i)
+    for (const auto &byte : receivedData)
     {
-        std::cout << static_cast<int>(buffer[i]) << ' ';
+        std::cout << std::hex << std::setw(2) << std::setfill('0') << byte << " ";
     }
-    std::cout << '\n';
+    std::cout << std::endl;
 
     // Close The Serial Port
     serial.close();

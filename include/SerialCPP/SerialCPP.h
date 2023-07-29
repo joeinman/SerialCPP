@@ -63,10 +63,9 @@ namespace SerialCPP
         std::optional<uint8_t> read();
 
         // Reads data from the serial port.
-        // @param buffer: The buffer to store the read data.
-        // @param n: The maximum number of bytes to read.
-        // @return: The actual number of bytes read, or 0 if no data is available.
-        size_t readBytes(uint8_t *buffer, size_t n);
+        // @param n: The maximum number of bytes to try and read.
+        // @return: A vector containing the actual bytes read.
+        std::vector<uint8_t> readBytes(size_t n);
 
         // Reads a line of text from the serial port.
         // @return: The line of text read from the port, or an empty string if no data is available.

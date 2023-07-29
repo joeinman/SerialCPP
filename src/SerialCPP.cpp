@@ -197,15 +197,15 @@ namespace SerialCPP
         return line;
     }
 
-    size_t SerialCPP::readBytes(uint8_t *buffer, size_t n)
+    std::vector<uint8_t> SerialCPP::readBytes(size_t n)
     {
-        size_t i;
+        std::vector<uint8_t> buffer;
         std::optional<uint8_t> opt;
-        for (i = 0; i < n && (opt = read()); ++i)
+        for (size_t i = 0; i < n && (opt = read()); ++i)
         {
-            buffer[i] = opt.value();
+            buffer.push_back(opt.value());
         }
-        return i;
+        return buffer;
     }
 
     size_t SerialCPP::available()
