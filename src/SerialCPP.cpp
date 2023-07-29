@@ -133,14 +133,14 @@ namespace SerialCPP
         return true;
     }
 
-    bool SerialCPP::writeBytes(const uint8_t *data, size_t size)
+    bool SerialCPP::writeBytes(const std::vector<uint8_t> &data)
     {
         // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
         std::lock_guard<std::mutex> lock(mutex);
 
-        for (size_t i = 0; i < size; ++i)
+        for (const uint8_t &byte : data)
         {
-            if (!write(data[i]))
+            if (!write(byte))
             {
                 return false;
             }

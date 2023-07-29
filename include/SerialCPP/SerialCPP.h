@@ -50,9 +50,8 @@ namespace SerialCPP
 
         // Writes data to the serial port.
         // @param data: The data to write to the port.
-        // @param size: The number of bytes to write.
         // @return: true if the data was written successfully, false otherwise.
-        bool writeBytes(const uint8_t *data, size_t size);
+        bool writeBytes(const std::vector<uint8_t> &data);
 
         // Writes a string to the serial port, followed by a newline character.
         // @param data: The string to write to the port.
