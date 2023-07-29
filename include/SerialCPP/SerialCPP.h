@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <deque>
 #include <mutex>
 
 #ifdef _WIN32
@@ -34,8 +33,7 @@ namespace SerialCPP
         // Constructor: Initializes a new instance of the SerialCPP class.
         // @param port: The name of the serial port to connect to.
         // @param baudRate: The baud rate at which the communications device operates.
-        // @param bufferSize: The size of the internal buffer.
-        SerialCPP(const std::string &port, BaudRate baud = BaudRate::BR_115200, size_t bufferSize = 64);
+        SerialCPP(const std::string &port, BaudRate baud = BaudRate::BR_115200);
 
         // Destructor: Closes the serial port if it is open.
         ~SerialCPP();
@@ -67,10 +65,6 @@ namespace SerialCPP
         // @return: The line of text read from the port, or an empty string if no data is available.
         std::string readLine();
 
-        // Returns the number of bytes available to read in the buffer.
-        // @return: The number of bytes available to read.
-        size_t available();
-
         // Returns True if the serial port is open, False otherwise.
         // @return: True if the serial port is open, False otherwise.
         operator bool() const
@@ -83,10 +77,6 @@ namespace SerialCPP
         }
 
     private:
-        // Fills the internal buffer with data from the serial port.
-        // @return: true if data was read successfully, false otherwise.
-        bool fillBuffer();
-
         // Reads a byte from the serial port.
         // @return: The byte read, or std::nullopt if no data is available.
         std::optional<uint8_t> read();
@@ -96,11 +86,9 @@ namespace SerialCPP
         // @return: true if the data was written successfully, false otherwise.
         bool write(const uint8_t byte);
 
-        std::string portName;            // The name of the serial port.
-        size_t baudRate;                 // The baud rate at which the communications device operates.
-        std::deque<uint8_t> inputBuffer; // The buffer for incoming data.
-        size_t bufferSize;               // The size of the buffer for read operations
-        std::mutex mutex;                // The mutex used to synchronize access to the serial port.
+        std::string portName; // The name of the serial port.
+        size_t baudRate;      // The baud rate at which the communications device operates.
+        std::mutex mutex;     // The mutex used to synchronize access to the serial port.
 
 #ifdef _WIN32
         HANDLE hSerial; // The handle to the serial port (Windows only).

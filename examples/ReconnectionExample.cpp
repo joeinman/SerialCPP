@@ -28,13 +28,10 @@ int main()
             }
         }
 
-        // If There Is Data Available To Read From The Serial Port
-        if (serial.available() > 0)
-        {
-            // Read A Line Of Text From The Serial Port And Print It To The Console
-            std::string line = serial.readLine();
-            std::cout << "Received: " << line << '\n';
-        }
+        // Read A Line Of Text From The Serial Port And Print It To The Console
+        std::string line = serial.readLine();
+        if (!line.empty())
+            std::cout << "Received: " << line << std::endl;
 
         // Sleep For A Short Duration To Prevent High CPU Usage
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

@@ -3,8 +3,8 @@
 namespace SerialCPP
 {
 
-    SerialCPP::SerialCPP(const std::string &port, BaudRate baud, size_t bufferSize)
-        : portName(port), baudRate(static_cast<size_t>(baud)), bufferSize(bufferSize)
+    SerialCPP::SerialCPP(const std::string &port, BaudRate baud)
+        : portName(port), baudRate(static_cast<size_t>(baud))
     {
 #ifdef _WIN32
         hSerial = INVALID_HANDLE_VALUE;
@@ -170,50 +170,27 @@ namespace SerialCPP
         return true;
     }
 
-    bool SerialCPP::fillBuffer()
-    {
-        std::vector<uint8_t> tempBuffer(bufferSize);
-        size_t bytesRead;
-#ifdef _WIN32
-        if (!ReadFile(hSerial, tempBuffer.data(), tempBuffer.size(), reinterpret_cast<DWORD *>(&bytesRead), NULL))
-        {
-            return false;
-        }
-#else
-        bytesRead = ::read(fd, tempBuffer.data(), tempBuffer.size());
-        if (bytesRead == -1)
-        {
-            return false;
-        }
-#endif
-        for (size_t i = 0; i < bytesRead; ++i)
-        {
-            inputBuffer.push_back(tempBuffer[i]);
-        }
-
-        return true;
-    }
-
     std::optional<uint8_t> SerialCPP::read()
     {
-        if (inputBuffer.empty())
+        uint8_t byte;
+#ifdef _WIN32
+        DWORD bytesRead;
+        if (!ReadFile(hSerial, &byte, 1, &bytesRead, NULL) || bytesRead == 0)
         {
-            fillBuffer();
+            return std::nullopt;
         }
-
-        if (!inputBuffer.empty())
+#else
+        ssize_t result = ::read(fd, &byte, 1);
+        if (result <= 0)
         {
-            uint8_t c = inputBuffer.front();
-            inputBuffer.pop_front();
-            return c;
+            return std::nullopt;
         }
-
-        return std::nullopt;
+#endif
+        return byte;
     }
 
     std::string SerialCPP::readLine()
     {
-        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
         std::lock_guard<std::mutex> lock(mutex);
 
         std::string line;
@@ -237,15 +214,6 @@ namespace SerialCPP
             buffer.push_back(opt.value());
         }
         return buffer;
-    }
-
-    size_t SerialCPP::available()
-    {
-        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
-        std::lock_guard<std::mutex> lock(mutex);
-
-        fillBuffer();
-        return inputBuffer.size();
     }
 
 } // namespace SerialCPP
