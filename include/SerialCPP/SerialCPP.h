@@ -5,6 +5,7 @@
 #include <vector>
 #include <string>
 #include <deque>
+#include <mutex>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -51,16 +52,12 @@ namespace SerialCPP
         // @param data: The data to write to the port.
         // @param size: The number of bytes to write.
         // @return: true if the data was written successfully, false otherwise.
-        bool write(const uint8_t *data, size_t size);
+        bool writeBytes(const uint8_t *data, size_t size);
 
         // Writes a string to the serial port, followed by a newline character.
         // @param data: The string to write to the port.
         // @return: true if the string was written successfully, false otherwise.
         bool writeLine(const std::string &data);
-
-        // Reads a byte from the serial port.
-        // @return: The byte read, or std::nullopt if no data is available.
-        std::optional<uint8_t> read();
 
         // Reads data from the serial port.
         // @param n: The maximum number of bytes to try and read.
@@ -91,10 +88,20 @@ namespace SerialCPP
         // @return: true if data was read successfully, false otherwise.
         bool fillBuffer();
 
+        // Reads a byte from the serial port.
+        // @return: The byte read, or std::nullopt if no data is available.
+        std::optional<uint8_t> read();
+
+        // Writes a byte to the serial port.
+        // @param data: The byte to write to the port.
+        // @return: true if the data was written successfully, false otherwise.
+        bool write(const uint8_t byte);
+
         std::string portName;            // The name of the serial port.
         size_t baudRate;                 // The baud rate at which the communications device operates.
         std::deque<uint8_t> inputBuffer; // The buffer for incoming data.
         size_t bufferSize;               // The size of the buffer for read operations
+        std::mutex mutex;                // The mutex used to synchronize access to the serial port.
 
 #ifdef _WIN32
         HANDLE hSerial; // The handle to the serial port (Windows only).

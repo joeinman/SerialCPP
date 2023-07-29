@@ -20,7 +20,7 @@ int main()
     std::vector<uint8_t> data = {0x01, 0x02, 0x03, 0x04};
 
     // Write The Bytes To The Serial Port
-    serial.write(data.data(), data.size());
+    serial.writeBytes(data.data(), data.size());
 
     // Read 4 Bytes From The Serial Port
     std::vector<uint8_t> receivedData = serial.readBytes(4);

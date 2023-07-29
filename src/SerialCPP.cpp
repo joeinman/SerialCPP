@@ -20,6 +20,9 @@ namespace SerialCPP
 
     bool SerialCPP::open()
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
 #ifdef _WIN32
         hSerial = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hSerial == INVALID_HANDLE_VALUE)
@@ -86,6 +89,9 @@ namespace SerialCPP
 
     bool SerialCPP::close()
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
 #ifdef _WIN32
         if (hSerial != INVALID_HANDLE_VALUE)
         {
@@ -109,32 +115,44 @@ namespace SerialCPP
         return true;
     }
 
-    bool SerialCPP::write(const uint8_t *data, size_t size)
+    bool SerialCPP::write(uint8_t byte)
     {
+#ifdef _WIN32
+        DWORD bytesWritten;
+        if (!WriteFile(hSerial, &byte, 1, &bytesWritten, NULL))
+        {
+            return false;
+        }
+#else
+        ssize_t result = ::write(fd, &byte, 1);
+        if (result == -1)
+        {
+            return false;
+        }
+#endif
+        return true;
+    }
+
+    bool SerialCPP::writeBytes(const uint8_t *data, size_t size)
+    {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
         for (size_t i = 0; i < size; ++i)
         {
-            uint8_t c = data[i];
-
-#ifdef _WIN32
-            DWORD bytesWritten;
-            if (!WriteFile(hSerial, &c, 1, &bytesWritten, NULL))
+            if (!write(data[i]))
             {
                 return false;
             }
-#else
-            ssize_t result = ::write(fd, &c, 1);
-            if (result == -1)
-            {
-                return false;
-            }
-#endif
         }
-
         return true;
     }
 
     bool SerialCPP::writeLine(const std::string &data)
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
         // Convert string to a byte array
         std::vector<uint8_t> byteData(data.begin(), data.end());
 
@@ -142,7 +160,14 @@ namespace SerialCPP
         byteData.push_back('\n');
 
         // Write the byte array using the write method
-        return write(byteData.data(), byteData.size());
+        for (size_t i = 0; i < byteData.size(); ++i)
+        {
+            if (!write(byteData.data()[i]))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     bool SerialCPP::fillBuffer()
@@ -188,6 +213,9 @@ namespace SerialCPP
 
     std::string SerialCPP::readLine()
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
         std::string line;
         std::optional<uint8_t> opt;
         while ((opt = read()) && opt.value() != '\n')
@@ -199,6 +227,9 @@ namespace SerialCPP
 
     std::vector<uint8_t> SerialCPP::readBytes(size_t n)
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
         std::vector<uint8_t> buffer;
         std::optional<uint8_t> opt;
         for (size_t i = 0; i < n && (opt = read()); ++i)
@@ -210,6 +241,9 @@ namespace SerialCPP
 
     size_t SerialCPP::available()
     {
+        // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
+        std::lock_guard<std::mutex> lock(mutex);
+
         fillBuffer();
         return inputBuffer.size();
     }
