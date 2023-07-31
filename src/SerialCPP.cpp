@@ -228,6 +228,11 @@ namespace SerialCPP
         {
             line += static_cast<char>(opt.value());
         }
+
+        // Remove Potential Trailing Newline & Carriage Return Characters
+        line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+        line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+
         return line;
     }
 
