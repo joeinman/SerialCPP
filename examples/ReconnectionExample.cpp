@@ -28,12 +28,23 @@ int main()
             }
         }
 
-        // Read A Line Of Text From The Serial Port And Print It To The Console
+        // Read A Line Of Text From The Serial Port
         std::string line = serial.readLine();
-        if (!line.empty())
-            std::cout << "Received: " << line << std::endl;
+
+        // If the line is empty, close the serial port.
+        if (line.empty())
+        {
+            serial.close();
+            continue;
+        }
+
+        // Print The Line To The Console
+        std::cout << "Received: " << line << std::endl;
 
         // Sleep For A Short Duration To Prevent High CPU Usage
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
+
+    serial.close();
+    return 0;
 }

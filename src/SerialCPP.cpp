@@ -1,4 +1,5 @@
 #include "SerialCPP/SerialCPP.h"
+#include <iostream>
 
 namespace SerialCPP
 {
@@ -24,22 +25,36 @@ namespace SerialCPP
         std::lock_guard<std::mutex> lock(mutex);
 
 #ifdef _WIN32
-        hSerial = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+        hSerial = CreateFile(portName.c_str(), GENERIC_READ | GENERIC_WRITE, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hSerial == INVALID_HANDLE_VALUE)
         {
             return false;
         }
+        else
+        {
+            DCB dcbSerialParameters = {0};
 
-        DCB dcbSerialParams = {0};
-        dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
-        if (!GetCommState(hSerial, &dcbSerialParams))
-        {
-            return false;
-        }
-        dcbSerialParams.BaudRate = baudRate;
-        if (!SetCommState(hSerial, &dcbSerialParams))
-        {
-            return false;
+            if (!GetCommState(hSerial, &dcbSerialParameters))
+            {
+                return false;
+            }
+            else
+            {
+                dcbSerialParameters.BaudRate = baudRate;
+                dcbSerialParameters.ByteSize = 8;
+                dcbSerialParameters.StopBits = ONESTOPBIT;
+                dcbSerialParameters.Parity = NOPARITY;
+                dcbSerialParameters.fDtrControl = DTR_CONTROL_ENABLE;
+
+                if (!SetCommState(hSerial, &dcbSerialParameters))
+                {
+                    return false;
+                }
+                else
+                {
+                    PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+                }
+            }
         }
 #else
         fd = ::open(portName.c_str(), O_RDWR | O_NOCTTY);
@@ -189,19 +204,6 @@ namespace SerialCPP
         return byte;
     }
 
-    std::string SerialCPP::readLine()
-    {
-        std::lock_guard<std::mutex> lock(mutex);
-
-        std::string line;
-        std::optional<uint8_t> opt;
-        while ((opt = read()) && opt.value() != '\n')
-        {
-            line += static_cast<char>(opt.value());
-        }
-        return line;
-    }
-
     std::vector<uint8_t> SerialCPP::readBytes(size_t n)
     {
         // Lock the mutex to prevent multiple threads from accessing the serial port at the same time.
@@ -214,6 +216,19 @@ namespace SerialCPP
             buffer.push_back(opt.value());
         }
         return buffer;
+    }
+
+    std::string SerialCPP::readLine()
+    {
+        std::lock_guard<std::mutex> lock(mutex);
+
+        std::string line;
+        std::optional<uint8_t> opt;
+        while ((opt = read()) && opt.value() != '\n')
+        {
+            line += static_cast<char>(opt.value());
+        }
+        return line;
     }
 
 } // namespace SerialCPP
