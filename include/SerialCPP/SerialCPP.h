@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <optional>
 #include <cstdint>
 #include <vector>
@@ -12,6 +13,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <cstring>
 #endif
 
 namespace SerialCPP

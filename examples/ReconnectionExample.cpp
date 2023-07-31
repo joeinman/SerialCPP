@@ -31,7 +31,7 @@ int main()
         // Read A Line Of Text From The Serial Port
         std::string line = serial.readLine();
 
-        // If the line is empty, close the serial port.
+        // Close The Serial Port If The Line Is Empty
         if (line.empty())
         {
             serial.close();
