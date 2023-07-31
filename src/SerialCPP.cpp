@@ -1,5 +1,4 @@
 #include "SerialCPP/SerialCPP.h"
-#include <iostream>
 
 namespace SerialCPP
 {
