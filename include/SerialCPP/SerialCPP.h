@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+#include <sys/ioctl.h>
 #endif
 
 namespace SerialCPP
