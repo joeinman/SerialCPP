@@ -68,13 +68,12 @@ namespace SerialCPP
 
         // Returns True if the serial port is open, False otherwise.
         // @return: True if the serial port is open, False otherwise.
-        operator bool() const
+        bool isDeviceConnected();
+
+        // Overload of the bool operator.
+        operator bool()
         {
-#ifdef _WIN32
-            return hSerial != INVALID_HANDLE_VALUE;
-#else
-            return fd >= 0;
-#endif
+            return isDeviceConnected();
         }
 
     private:

@@ -235,4 +235,32 @@ namespace SerialCPP
         return line;
     }
 
+    bool SerialCPP::isDeviceConnected()
+    {
+#ifdef _WIN32
+        if (hSerial == INVALID_HANDLE_VALUE)
+        {
+            close();
+            return false;
+        }
+        else
+        {
+            DWORD errors;
+            COMSTAT status;
+            ClearCommError(hSerial, &errors, &status);
+            return errors == 0;
+        }
+#else
+        if (fd < 0)
+        {
+            close();
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+#endif
+    }
+
 } // namespace SerialCPP

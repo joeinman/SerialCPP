@@ -28,17 +28,8 @@ int main()
             }
         }
 
-        // Read A Line Of Text From The Serial Port
+        // Read A Line Of Text From The Serial Port & Print It To The Console
         std::string line = serial.readLine();
-
-        // Close The Serial Port If The Line Is Empty
-        if (line.empty())
-        {
-            serial.close();
-            continue;
-        }
-
-        // Print The Line To The Console
         std::cout << "Received: " << line << std::endl;
 
         // Sleep For A Short Duration To Prevent High CPU Usage
