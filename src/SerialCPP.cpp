@@ -51,8 +51,6 @@ namespace SerialCPP
                 }
                 else
                 {
-                    PurgeComm(hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
-
                     // Set The Read Timeouts To Make ReadFile Non-Blocking
                     COMMTIMEOUTS timeouts = {0};
                     timeouts.ReadIntervalTimeout = MAXDWORD;
