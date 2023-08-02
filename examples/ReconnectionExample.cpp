@@ -30,7 +30,8 @@ int main()
 
         // Read A Line Of Text From The Serial Port & Print It To The Console
         std::string line = serial.readLine();
-        std::cout << "Received: " << line << std::endl;
+        if (!line.empty())
+            std::cout << "Received: " << line << std::endl;
 
         // Sleep For A Short Duration To Prevent High CPU Usage
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
