@@ -66,7 +66,7 @@ namespace SerialCPP
             }
         }
 #else
-        fd = ::open(portName.c_str(), O_RDWR | O_NOCTTY | O_NONBLOCK);
+        fd = ::open(portName.c_str(), O_RDWR | O_NOCTTY/* | O_NONBLOCK*/);
         if (fd < 0)
         {
             return false;
