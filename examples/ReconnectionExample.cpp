@@ -3,26 +3,34 @@
 #include <thread>
 #include <string>
 
-int main()
+int main(int argc, char **argv)
 {
-    // Create A SerialCPP Object Using The COM3 Port With A 115200 Baud Rate
-    SerialCPP::SerialCPP serial("COM3", SerialCPP::BaudRate::BR_115200);
+    // Check If COM Port Was Provided
+    if (argc < 2)
+    {
+        std::cerr << "Usage: " << argv[0] << " <COM Port>\n";
+        return 1;
+    }
+
+    // Create A SerialCPP Object Using The COM Port With A 115200 Baud Rate
+    std::string comPort = argv[1];
+    SerialCPP::SerialCPP serial(comPort, SerialCPP::BaudRate::BR_115200);
 
     while (1)
     {
         // If The Serial Port Is Not Open, Attempt To Reopen It
         if (!serial)
         {
-            std::cout << "Attempting To Connect...\n";
+            std::cout << "Attempting To Connect to " << comPort << "...\n";
 
             // Attempt To Reopen The Serial Port
             if (serial.open())
             {
-                std::cout << "Connected Successfully.\n";
+                std::cout << "Connected Successfully to " << comPort << ".\n";
             }
             else
             {
-                std::cout << "Failed To Connect. Retrying...\n";
+                std::cout << "Failed To Connect to " << comPort << ". Retrying...\n";
                 std::this_thread::sleep_for(std::chrono::seconds(1));
                 continue;
             }
